@@ -99,33 +99,7 @@ struct MenuBarHistoryView: View {
 
             Divider()
 
-            HStack {
-                Button(strings.openMainWindow) {
-                    openWindow(id: AppWindowID.main)
-                }
-
-                Spacer()
-
-                SettingsLink {
-                    Label(strings.settings, systemImage: "gearshape")
-                }
-
-                Button {
-                    updateManager.checkForUpdates()
-                } label: {
-                    Label(strings.checkForUpdates, systemImage: "arrow.triangle.2.circlepath")
-                }
-                .disabled(!updateManager.isAvailable)
-
-                Button(preferences.isMonitoringPaused ? strings.resumeMonitoring : strings.pauseMonitoring) {
-                    preferences.isMonitoringPaused.toggle()
-                }
-
-                Button(strings.clearHistory, role: .destructive) {
-                    clearHistory()
-                }
-                .disabled(items.isEmpty)
-            }
+            footerActions
         }
         .padding(14)
         .focusable(false)
@@ -167,6 +141,73 @@ struct MenuBarHistoryView: View {
             RoundedRectangle(cornerRadius: 0)
                 .stroke(Color.clear, lineWidth: 0)
         )
+    }
+
+    private var footerActions: some View {
+        HStack(spacing: 10) {
+            footerButton(
+                title: strings.openMainWindow,
+                systemImage: "macwindow",
+                isDisabled: false
+            ) {
+                openWindow(id: AppWindowID.main)
+            }
+
+            SettingsLink {
+                Label(strings.settings, systemImage: "gearshape")
+                    .labelStyle(.iconOnly)
+                    .frame(width: 34, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
+            .help(strings.settings)
+
+            footerButton(
+                title: strings.checkForUpdates,
+                systemImage: "arrow.triangle.2.circlepath",
+                isDisabled: !updateManager.isAvailable
+            ) {
+                updateManager.checkForUpdates()
+            }
+
+            footerButton(
+                title: preferences.isMonitoringPaused ? strings.resumeMonitoring : strings.pauseMonitoring,
+                systemImage: preferences.isMonitoringPaused ? "play.circle" : "pause.circle",
+                isDisabled: false
+            ) {
+                preferences.isMonitoringPaused.toggle()
+            }
+
+            Spacer(minLength: 0)
+
+            footerButton(
+                title: strings.clearHistory,
+                systemImage: "trash",
+                role: .destructive,
+                isDisabled: items.isEmpty
+            ) {
+                clearHistory()
+            }
+        }
+    }
+
+    private func footerButton(
+        title: String,
+        systemImage: String,
+        role: ButtonRole? = nil,
+        isDisabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(role: role, action: action) {
+            Label(title, systemImage: systemImage)
+                .labelStyle(.iconOnly)
+                .frame(width: 34, height: 30)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
+        .disabled(isDisabled)
+        .help(title)
+        .accessibilityLabel(title)
     }
 
     private func delete(_ item: Item) {
