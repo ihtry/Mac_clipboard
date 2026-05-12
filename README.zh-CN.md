@@ -89,11 +89,32 @@ T clipboard 已集成 Sparkle 更新检查。生成 Sparkle 签名密钥、发�
 
 如果没有配置这两个值，应用会自动禁用“检查更新”按钮。
 
+GitHub Pages appcast 地址：
+
+```text
+https://ihtry.github.io/Mac_clipboard/appcast.xml
+```
+
+GitHub 仓库需要配置：
+
+- 开启 GitHub Pages，并将来源设置为 **GitHub Actions**。
+- 添加 Actions Secret：`SPARKLE_PRIVATE_KEY`。
+
+使用 Sparkle 的 `generate_keys` 工具生成密钥，将私钥保存到 `SPARKLE_PRIVATE_KEY`，打包时使用公钥：
+
+```sh
+SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
+scripts/package-dmg.sh
+```
+
 打包签名后的 Release 后，生成 appcast：
 
 ```sh
 SPARKLE_GENERATE_APPCAST="/path/to/generate_appcast" scripts/generate-appcast.sh dist
 ```
+
+仓库已包含 `.github/workflows/publish-appcast.yml`。发布 GitHub Release 后，它会下载 `T-clipboard.dmg`，生成 `appcast.xml`，并部署到 GitHub Pages。
 
 ## 仓库说明
 

@@ -1,0 +1,96 @@
+name: Publish Sparkle Appcast
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to publish in the appcast, for example v1.0.2"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish-appcast:
+    runs-on: macos-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          release_json="$(gh release view "$RELEASE_TAG" --json tagName,url)"
+          echo "tag=$(jq -r '.tagName' <<< "$release_json")" >> "$GITHUB_OUTPUT"
+          echo "url=$(jq -r '.url' <<< "$release_json")" >> "$GITHUB_OUTPUT"
+
+      - name: Download release DMG
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "${{ steps.release.outputs.tag }}" \
+            --pattern "T-clipboard.dmg" \
+            --dir dist \
+            --clobber
+
+      - name: Install Sparkle tools
+        run: |
+          set -euo pipefail
+          brew install --cask sparkle
+
+      - name: Import Sparkle private key
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$SPARKLE_PRIVATE_KEY"
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > sparkle_private_key
+          chmod 600 sparkle_private_key
+
+      - name: Generate appcast
+        env:
+          DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          /Applications/Sparkle.app/Contents/Resources/generate_appcast \
+            --ed-key-file sparkle_private_key \
+            --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
+            dist
+
+      - name: Prepare Pages artifact
+        run: |
+          set -euo pipefail
+          mkdir -p public
+          cp dist/appcast.xml public/appcast.xml
+          touch public/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

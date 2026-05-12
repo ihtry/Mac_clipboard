@@ -89,11 +89,32 @@ T clipboard integrates Sparkle for update checks. Generate Sparkle signing keys,
 
 The app disables the update button automatically when these values are not configured.
 
+GitHub Pages appcast URL:
+
+```text
+https://ihtry.github.io/Mac_clipboard/appcast.xml
+```
+
+Required GitHub repository settings:
+
+- Enable GitHub Pages with **GitHub Actions** as the source.
+- Add an Actions secret named `SPARKLE_PRIVATE_KEY`.
+
+Generate Sparkle keys with Sparkle's `generate_keys` tool, store the private key in `SPARKLE_PRIVATE_KEY`, and use the public key when packaging:
+
+```sh
+SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
+scripts/package-dmg.sh
+```
+
 After packaging a signed release, generate the appcast:
 
 ```sh
 SPARKLE_GENERATE_APPCAST="/path/to/generate_appcast" scripts/generate-appcast.sh dist
 ```
+
+The repository also includes `.github/workflows/publish-appcast.yml`, which runs after a GitHub Release is published, downloads `T-clipboard.dmg`, generates `appcast.xml`, and deploys it to GitHub Pages.
 
 ## Repository Policy
 
