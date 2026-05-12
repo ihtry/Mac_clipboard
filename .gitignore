@@ -1,0 +1,9 @@
+.DS_Store
+DerivedData/
+build/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+xcuserdata/
+dist/dmg-root/
+dist/*.temp.dmg

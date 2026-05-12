@@ -10,10 +10,18 @@ import Testing
 
 struct clipboardTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-        // Swift Testing Documentation
-        // https://developer.apple.com/documentation/testing
+    @Test func previewReplacesLineBreaksAndTrimsWhitespace() async throws {
+        let preview = Item.makePreview(from: "  first line\nsecond line  ")
+        #expect(preview == "first line second line")
     }
 
+    @Test func previewTruncatesLongContent() async throws {
+        let preview = Item.makePreview(from: String(repeating: "a", count: 100), limit: 10)
+        #expect(preview == "aaaaaaaaaa…")
+    }
+
+    @Test func previewUsesPlaceholderForBlankContent() async throws {
+        let preview = Item.makePreview(from: "\n  \n")
+        #expect(preview == "空白内容")
+    }
 }
