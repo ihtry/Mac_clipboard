@@ -5,6 +5,7 @@
 //  Joker Created by Codex on 2026/5/12.
 //
 
+import Combine
 import Foundation
 import Sparkle
 

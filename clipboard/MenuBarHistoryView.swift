@@ -14,6 +14,7 @@ struct MenuBarHistoryView: View {
     @Environment(\.openWindow) private var openWindow
     @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
     @EnvironmentObject private var preferences: AppPreferences
+    @EnvironmentObject private var updateManager: UpdateManager
     @Query(sort: \Item.copiedAt, order: .reverse) private var items: [Item]
 
     @State private var searchText = ""
@@ -108,6 +109,13 @@ struct MenuBarHistoryView: View {
                 SettingsLink {
                     Label(strings.settings, systemImage: "gearshape")
                 }
+
+                Button {
+                    updateManager.checkForUpdates()
+                } label: {
+                    Label(strings.checkForUpdates, systemImage: "arrow.triangle.2.circlepath")
+                }
+                .disabled(!updateManager.isAvailable)
 
                 Button(preferences.isMonitoringPaused ? strings.resumeMonitoring : strings.pauseMonitoring) {
                     preferences.isMonitoringPaused.toggle()

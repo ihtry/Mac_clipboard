@@ -13,6 +13,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
     @EnvironmentObject private var preferences: AppPreferences
+    @EnvironmentObject private var updateManager: UpdateManager
     @Query(sort: \Item.copiedAt, order: .reverse) private var items: [Item]
 
     @State private var selectedItemID: PersistentIdentifier?
@@ -201,6 +202,16 @@ struct ContentView: View {
             }
         }
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    updateManager.checkForUpdates()
+                } label: {
+                    Label(strings.checkForUpdates, systemImage: "arrow.triangle.2.circlepath")
+                }
+                .disabled(!updateManager.isAvailable)
+                .help(strings.checkForUpdates)
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Link(destination: githubURL) {
                     Image("GitHubMark")
