@@ -71,8 +71,10 @@ jobs:
           DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}/
         run: |
           set -euo pipefail
-          /Applications/Sparkle.app/Contents/Resources/generate_appcast --help | head -n 1
-          /Applications/Sparkle.app/Contents/Resources/generate_appcast \
+          GENERATE_APPCAST="$(find /Applications -path '*/generate_appcast' -type f -perm +111 | head -n 1)"
+          test -n "$GENERATE_APPCAST"
+          "$GENERATE_APPCAST" --help | head -n 1
+          "$GENERATE_APPCAST" \
             --ed-key-file sparkle_private_key \
             --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
             dist
