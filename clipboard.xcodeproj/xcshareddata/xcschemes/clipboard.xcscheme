@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F38CF1672FB2A07100DC8A0F"
-               BuildableName = "clipboard.app"
+               BuildableName = "T clipboard.app"
                BlueprintName = "clipboard"
                ReferencedContainer = "container:clipboard.xcodeproj">
             </BuildableReference>
@@ -70,7 +70,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F38CF1672FB2A07100DC8A0F"
-            BuildableName = "clipboard.app"
+            BuildableName = "T clipboard.app"
             BlueprintName = "clipboard"
             ReferencedContainer = "container:clipboard.xcodeproj">
          </BuildableReference>
@@ -91,7 +91,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F38CF1672FB2A07100DC8A0F"
-            BuildableName = "clipboard.app"
+            BuildableName = "T clipboard.app"
             BlueprintName = "clipboard"
             ReferencedContainer = "container:clipboard.xcodeproj">
          </BuildableReference>

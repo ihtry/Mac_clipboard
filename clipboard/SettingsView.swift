@@ -74,6 +74,12 @@ struct SettingsView: View {
                 Text(updateManager.isAvailable ? strings.updatesEnabledHint : strings.updatesDisabledHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                if let statusMessage = updateManager.statusMessage, !updateManager.isAvailable {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section(strings.interactionSection) {

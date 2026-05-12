@@ -26,7 +26,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 struct AppStrings {
     let language: AppLanguage
 
-    var clipboardTitle: String { text("剪切板", "Clipboard") }
+    var clipboardTitle: String { text("T clipboard", "T clipboard") }
     var emptyClipboardHistoryTitle: String { text("暂无剪切板历史", "No Clipboard History") }
     var emptyClipboardHistoryDescription: String { text("复制任意文本后，这里会自动记录。", "Copy any text and it will appear here automatically.") }
     var pinnedSection: String { text("固定", "Pinned") }

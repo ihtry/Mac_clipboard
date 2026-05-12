@@ -57,7 +57,7 @@ scripts/package-dmg.sh
 如需在 Release 构建中启用 Sparkle 更新检查，传入 appcast 地址和 EdDSA 公钥：
 
 ```sh
-SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_FEED_URL="https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml" \
 SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
 scripts/package-dmg.sh
 ```
@@ -89,10 +89,10 @@ T clipboard 已集成 Sparkle 更新检查。生成 Sparkle 签名密钥、发�
 
 如果没有配置这两个值，应用会自动禁用“检查更新”按钮。
 
-GitHub Pages appcast 地址：
+仓库 raw appcast 地址：
 
 ```text
-https://ihtry.github.io/Mac_clipboard/appcast.xml
+https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml
 ```
 
 GitHub 仓库需要配置：
@@ -103,7 +103,7 @@ GitHub 仓库需要配置：
 使用 Sparkle 的 `generate_keys` 工具生成密钥，将私钥保存到 `SPARKLE_PRIVATE_KEY`，打包时使用公钥：
 
 ```sh
-SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_FEED_URL="https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml" \
 SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
 scripts/package-dmg.sh
 ```
@@ -114,7 +114,7 @@ scripts/package-dmg.sh
 SPARKLE_GENERATE_APPCAST="/path/to/generate_appcast" scripts/generate-appcast.sh dist
 ```
 
-仓库已包含 `.github/workflows/publish-appcast.yml`。发布 GitHub Release 后，它会下载 `T-clipboard.dmg`，生成 `appcast.xml`，并部署到 GitHub Pages。
+仓库已包含 `.github/workflows/publish-appcast.yml`。发布 GitHub Release 后，它会下载 `T-clipboard.dmg`，生成 `appcast.xml`，并直接提交回仓库根目录。
 
 ## 仓库说明
 

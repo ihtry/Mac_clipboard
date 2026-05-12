@@ -6,12 +6,13 @@ PROJECT="$ROOT_DIR/clipboard.xcodeproj"
 SCHEME="clipboard"
 CONFIGURATION="Release"
 APP_NAME="T clipboard"
+APP_BUNDLE_NAME="$APP_NAME.app"
 DMG_NAME="T-clipboard.dmg"
 DIST_DIR="$ROOT_DIR/dist"
 DMG_ROOT="$DIST_DIR/dmg-root"
 DERIVED_DATA="$ROOT_DIR/build/DerivedData"
 DMG_PATH="$DIST_DIR/$DMG_NAME"
-APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/clipboard.app"
+APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/$APP_BUNDLE_NAME"
 SIGN_IDENTITY="${SIGN_IDENTITY:-}"
 ENTITLEMENTS="$ROOT_DIR/clipboard/clipboard.entitlements"
 
@@ -72,14 +73,22 @@ detach_existing_image "$DMG_PATH"
 rm -rf "$DMG_ROOT" "$DMG_PATH"
 mkdir -p "$DMG_ROOT"
 
-xcodebuild \
-  -project "$PROJECT" \
-  -scheme "$SCHEME" \
-  -configuration "$CONFIGURATION" \
-  -derivedDataPath "$DERIVED_DATA" \
-  SPARKLE_FEED_URL="${SPARKLE_FEED_URL:-}" \
-  SPARKLE_PUBLIC_ED_KEY="${SPARKLE_PUBLIC_ED_KEY:-}" \
-  build
+xcodebuild_args=(
+  -project "$PROJECT"
+  -scheme "$SCHEME"
+  -configuration "$CONFIGURATION"
+  -derivedDataPath "$DERIVED_DATA"
+)
+
+if [[ -n "${SPARKLE_FEED_URL:-}" ]]; then
+  xcodebuild_args+=("SPARKLE_FEED_URL=$SPARKLE_FEED_URL")
+fi
+
+if [[ -n "${SPARKLE_PUBLIC_ED_KEY:-}" ]]; then
+  xcodebuild_args+=("SPARKLE_PUBLIC_ED_KEY=$SPARKLE_PUBLIC_ED_KEY")
+fi
+
+xcodebuild "${xcodebuild_args[@]}" build
 
 if [[ ! -d "$APP_PATH" ]]; then
   echo "Release app not found: $APP_PATH" >&2
