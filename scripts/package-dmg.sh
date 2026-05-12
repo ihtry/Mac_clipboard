@@ -11,6 +11,25 @@ DIST_DIR="$ROOT_DIR/dist"
 DMG_ROOT="$DIST_DIR/dmg-root"
 DERIVED_DATA="$ROOT_DIR/build/DerivedData"
 DMG_PATH="$DIST_DIR/$DMG_NAME"
+APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/clipboard.app"
+SIGN_IDENTITY="${SIGN_IDENTITY:-}"
+ENTITLEMENTS="$ROOT_DIR/clipboard/clipboard.entitlements"
+
+set_plist_value() {
+  local plist_path="$1"
+  local key="$2"
+  local type="$3"
+  local value="$4"
+
+  /usr/libexec/PlistBuddy -c "Set :$key $value" "$plist_path" 2>/dev/null \
+    || /usr/libexec/PlistBuddy -c "Add :$key $type $value" "$plist_path"
+}
+
+first_codesign_identity() {
+  security find-identity -v -p codesigning \
+    | sed -n 's/^ *[0-9]*) [A-F0-9]* "\(.*\)"$/\1/p' \
+    | head -n 1
+}
 
 detach_existing_image() {
   local image_path="$1"
@@ -62,10 +81,40 @@ xcodebuild \
   SPARKLE_PUBLIC_ED_KEY="${SPARKLE_PUBLIC_ED_KEY:-}" \
   build
 
-APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/clipboard.app"
 if [[ ! -d "$APP_PATH" ]]; then
   echo "Release app not found: $APP_PATH" >&2
   exit 1
+fi
+
+APP_PLIST="$APP_PATH/Contents/Info.plist"
+if [[ -n "${SPARKLE_FEED_URL:-}" ]]; then
+  set_plist_value "$APP_PLIST" "SUFeedURL" "string" "$SPARKLE_FEED_URL"
+fi
+
+if [[ -n "${SPARKLE_PUBLIC_ED_KEY:-}" ]]; then
+  set_plist_value "$APP_PLIST" "SUPublicEDKey" "string" "$SPARKLE_PUBLIC_ED_KEY"
+fi
+
+set_plist_value "$APP_PLIST" "SUEnableAutomaticChecks" "bool" "true"
+set_plist_value "$APP_PLIST" "SUEnableInstallerLauncherService" "bool" "true"
+
+if ! codesign --verify --deep --strict "$APP_PATH" >/dev/null 2>&1; then
+  if [[ -z "$SIGN_IDENTITY" ]]; then
+    SIGN_IDENTITY="$(first_codesign_identity)"
+  fi
+
+  if [[ -z "$SIGN_IDENTITY" ]]; then
+    echo "No codesigning identity found. Set SIGN_IDENTITY to re-sign the app." >&2
+    exit 1
+  fi
+
+  codesign \
+    --force \
+    --options runtime \
+    --timestamp=none \
+    --entitlements "$ENTITLEMENTS" \
+    --sign "$SIGN_IDENTITY" \
+    "$APP_PATH"
 fi
 
 cp -R "$APP_PATH" "$DMG_ROOT/$APP_NAME.app"
