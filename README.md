@@ -2,6 +2,8 @@
 
 T clipboard is a macOS clipboard history app built with SwiftUI and SwiftData.
 
+中文文档: [README.zh-CN.md](README.zh-CN.md)
+
 ## Features
 
 - Automatically records copied text, images, and file paths.
@@ -13,7 +15,7 @@ T clipboard is a macOS clipboard history app built with SwiftUI and SwiftData.
 
 ## Installation
 
-Download the DMG, open it, then drag `T clipboard.app` into `Applications`.
+This repository only stores source code. Build the app locally with Xcode, or create a DMG from the Release build.
 
 ## Build
 
@@ -39,6 +41,8 @@ cp -R ~/Library/Developer/Xcode/DerivedData/clipboard-*/Build/Products/Release/c
 ln -s /Applications dist/dmg-root/Applications
 hdiutil create -volname "T clipboard" -srcfolder dist/dmg-root -ov -format UDZO dist/T-clipboard.dmg
 ```
+
+The generated DMG contains `T clipboard.app` and an `Applications` shortcut, so users can install it by dragging the app into `Applications`.
 
 ## License
 
