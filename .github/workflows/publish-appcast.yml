@@ -11,24 +11,21 @@ on:
         type: string
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: appcast
   cancel-in-progress: false
 
 jobs:
   publish-appcast:
     runs-on: macos-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Resolve release
         id: release
@@ -80,21 +77,20 @@ jobs:
             --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
             dist
 
-      - name: Prepare Pages artifact
+      - name: Store appcast in repository root
         run: |
           set -euo pipefail
-          mkdir -p public
-          cp dist/appcast.xml public/appcast.xml
-          touch public/.nojekyll
+          cp dist/appcast.xml appcast.xml
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit appcast.xml
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- appcast.xml; then
+            echo "appcast.xml is unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git commit -m "Update appcast for ${{ steps.release.outputs.tag }}"
+          git push origin HEAD:main

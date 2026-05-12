@@ -57,7 +57,7 @@ scripts/package-dmg.sh
 To enable Sparkle update checks in a release build, provide the appcast URL and EdDSA public key:
 
 ```sh
-SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_FEED_URL="https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml" \
 SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
 scripts/package-dmg.sh
 ```
@@ -89,10 +89,10 @@ T clipboard integrates Sparkle for update checks. Generate Sparkle signing keys,
 
 The app disables the update button automatically when these values are not configured.
 
-GitHub Pages appcast URL:
+Repository raw appcast URL:
 
 ```text
-https://ihtry.github.io/Mac_clipboard/appcast.xml
+https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml
 ```
 
 Required GitHub repository settings:
@@ -103,7 +103,7 @@ Required GitHub repository settings:
 Generate Sparkle keys with Sparkle's `generate_keys` tool, store the private key in `SPARKLE_PRIVATE_KEY`, and use the public key when packaging:
 
 ```sh
-SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_FEED_URL="https://raw.githubusercontent.com/ihtry/Mac_clipboard/main/appcast.xml" \
 SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
 scripts/package-dmg.sh
 ```
@@ -114,7 +114,7 @@ After packaging a signed release, generate the appcast:
 SPARKLE_GENERATE_APPCAST="/path/to/generate_appcast" scripts/generate-appcast.sh dist
 ```
 
-The repository also includes `.github/workflows/publish-appcast.yml`, which runs after a GitHub Release is published, downloads `T-clipboard.dmg`, generates `appcast.xml`, and deploys it to GitHub Pages.
+The repository also includes `.github/workflows/publish-appcast.yml`, which runs after a GitHub Release is published, downloads `T-clipboard.dmg`, generates `appcast.xml`, and commits it back to the repository root.
 
 ## Repository Policy
 
