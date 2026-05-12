@@ -63,7 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SPARKLE_PRIVATE_KEY"
-          printf '%s' "$SPARKLE_PRIVATE_KEY" > sparkle_private_key
+          printf '%s\n' "$SPARKLE_PRIVATE_KEY" > sparkle_private_key
           chmod 600 sparkle_private_key
 
       - name: Generate appcast
@@ -71,6 +71,7 @@ jobs:
           DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}/
         run: |
           set -euo pipefail
+          /Applications/Sparkle.app/Contents/Resources/generate_appcast --help | head -n 1
           /Applications/Sparkle.app/Contents/Resources/generate_appcast \
             --ed-key-file sparkle_private_key \
             --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
