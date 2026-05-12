@@ -20,6 +20,7 @@ T clipboard is a lightweight macOS clipboard history app built with SwiftUI and 
 - Directly paste a history item into the previous app, or copy only
 - Menu bar access
 - Global hotkey support, defaulting to `⌘⇧V`
+- In-app Simplified Chinese and English switching
 - Pause monitoring for privacy-sensitive moments
 - Optional sensitive text filtering
 - Local-first storage with SwiftData
