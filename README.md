@@ -44,20 +44,32 @@ xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release
 
 ## Package A DMG
 
-After a Release build, create a standard drag-to-install DMG:
+Create a standard drag-to-install DMG:
 
 ```sh
-rm -rf dist/dmg-root dist/T-clipboard.dmg
-mkdir -p dist/dmg-root
-cp -R ~/Library/Developer/Xcode/DerivedData/clipboard-*/Build/Products/Release/clipboard.app "dist/dmg-root/T clipboard.app"
-ln -s /Applications dist/dmg-root/Applications
-hdiutil create -volname "T clipboard" -srcfolder dist/dmg-root -ov -format UDZO dist/T-clipboard.dmg
+scripts/package-dmg.sh
 ```
 
 The generated DMG contains:
 
 - `T clipboard.app`
 - `Applications` shortcut
+
+## Notarization
+
+For public distribution outside the App Store, sign with a Developer ID certificate and notarize the DMG.
+
+Create a notarytool keychain profile:
+
+```sh
+xcrun notarytool store-credentials "t-clipboard-notary"
+```
+
+Submit and staple a packaged DMG:
+
+```sh
+NOTARYTOOL_PROFILE=t-clipboard-notary scripts/notarize-dmg.sh dist/T-clipboard.dmg
+```
 
 ## Repository Policy
 

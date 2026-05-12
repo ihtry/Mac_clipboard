@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT="$ROOT_DIR/clipboard.xcodeproj"
+SCHEME="clipboard"
+CONFIGURATION="Release"
+APP_NAME="T clipboard"
+DMG_NAME="T-clipboard.dmg"
+DIST_DIR="$ROOT_DIR/dist"
+DMG_ROOT="$DIST_DIR/dmg-root"
+DERIVED_DATA="$ROOT_DIR/build/DerivedData"
+DMG_PATH="$DIST_DIR/$DMG_NAME"
+
+detach_existing_image() {
+  local image_path="$1"
+  local info
+  local current_image=""
+  local device
+
+  info="$(hdiutil info)"
+  while IFS= read -r line; do
+    case "$line" in
+      image-path*)
+        current_image="${line#*: }"
+        ;;
+      /dev/*)
+        if [[ "$current_image" == "$image_path" ]]; then
+          device="${line%%[[:space:]]*}"
+          hdiutil detach "$device" >/dev/null 2>&1 || true
+        fi
+        ;;
+    esac
+  done <<< "$info"
+}
+
+verify_dmg() {
+  local image_path="$1"
+
+  for attempt in 1 2 3; do
+    if hdiutil verify "$image_path"; then
+      return 0
+    fi
+
+    detach_existing_image "$image_path"
+    sleep "$attempt"
+  done
+
+  hdiutil verify "$image_path"
+}
+
+detach_existing_image "$DMG_PATH"
+rm -rf "$DMG_ROOT" "$DMG_PATH"
+mkdir -p "$DMG_ROOT"
+
+xcodebuild \
+  -project "$PROJECT" \
+  -scheme "$SCHEME" \
+  -configuration "$CONFIGURATION" \
+  -derivedDataPath "$DERIVED_DATA" \
+  build
+
+APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/clipboard.app"
+if [[ ! -d "$APP_PATH" ]]; then
+  echo "Release app not found: $APP_PATH" >&2
+  exit 1
+fi
+
+cp -R "$APP_PATH" "$DMG_ROOT/$APP_NAME.app"
+ln -s /Applications "$DMG_ROOT/Applications"
+
+hdiutil create \
+  -volname "$APP_NAME" \
+  -srcfolder "$DMG_ROOT" \
+  -ov \
+  -format UDZO \
+  "$DMG_PATH"
+
+detach_existing_image "$DMG_PATH"
+verify_dmg "$DMG_PATH"
+
+echo "$DMG_PATH"

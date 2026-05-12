@@ -44,20 +44,32 @@ xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release
 
 ## 打包 DMG
 
-Release 构建完成后，可以创建标准拖拽安装 DMG：
+创建标准拖拽安装 DMG：
 
 ```sh
-rm -rf dist/dmg-root dist/T-clipboard.dmg
-mkdir -p dist/dmg-root
-cp -R ~/Library/Developer/Xcode/DerivedData/clipboard-*/Build/Products/Release/clipboard.app "dist/dmg-root/T clipboard.app"
-ln -s /Applications dist/dmg-root/Applications
-hdiutil create -volname "T clipboard" -srcfolder dist/dmg-root -ov -format UDZO dist/T-clipboard.dmg
+scripts/package-dmg.sh
 ```
 
 生成的 DMG 包含：
 
 - `T clipboard.app`
 - `Applications` 快捷方式
+
+## 公证
+
+如果要在 App Store 之外公开分发，建议使用 Developer ID 证书签名，并对 DMG 进行 Apple notarization。
+
+创建 notarytool 钥匙串配置：
+
+```sh
+xcrun notarytool store-credentials "t-clipboard-notary"
+```
+
+提交并装订 DMG：
+
+```sh
+NOTARYTOOL_PROFILE=t-clipboard-notary scripts/notarize-dmg.sh dist/T-clipboard.dmg
+```
 
 ## 仓库说明
 
