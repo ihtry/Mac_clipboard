@@ -14,6 +14,11 @@ struct HotKey: Equatable {
     let keyCode: UInt32
     let modifiers: UInt32
 
+    static let defaultOpenWindow = HotKey(
+        keyCode: 9,
+        modifiers: UInt32(cmdKey | shiftKey)
+    )
+
     var displayString: String {
         let modifierString = Self.modifierSymbols(for: modifiers)
         let keyString = Self.keyName(for: keyCode)

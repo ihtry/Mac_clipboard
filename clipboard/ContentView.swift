@@ -12,10 +12,12 @@ import AppKit
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
+    @EnvironmentObject private var preferences: AppPreferences
     @Query(sort: \Item.copiedAt, order: .reverse) private var items: [Item]
 
     @State private var selectedItemID: PersistentIdentifier?
     @State private var searchText = ""
+    @State private var feedbackMessage: String?
 
     private let githubURL = URL(string: "https://github.com/ihtry/Mac_clipboard")!
 
@@ -96,10 +98,10 @@ struct ContentView: View {
                 ToolbarItemGroup(placement: .automatic) {
                     Button {
                         if let item = selectedItem {
-                            copy(item)
+                            performPrimaryAction(for: item)
                         }
                     } label: {
-                        Label("复制", systemImage: "doc.on.doc")
+                        Label(primaryActionTitle, systemImage: primaryActionSystemImage)
                     }
                     .disabled(selectedItem == nil)
 
@@ -154,6 +156,12 @@ struct ContentView: View {
                                         .foregroundStyle(.secondary)
                                 }
 
+                                if let feedbackMessage {
+                                    Label(feedbackMessage, systemImage: "info.circle")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
                                 Divider()
 
                                 ClipboardDetailContent(item: item)
@@ -173,9 +181,9 @@ struct ContentView: View {
                     .toolbar {
                         ToolbarItem(placement: .primaryAction) {
                             Button {
-                                copy(item)
+                                performPrimaryAction(for: item)
                             } label: {
-                                Label("复制到系统剪切板", systemImage: "document.on.document")
+                                Label(primaryActionTitle, systemImage: primaryActionSystemImage)
                             }
                         }
                     }
@@ -219,7 +227,26 @@ struct ContentView: View {
             }
 
             self.selectedItemID = filteredItems.first?.persistentModelID
+            feedbackMessage = nil
         }
+        .onDeleteCommand {
+            if let item = selectedItem {
+                delete(item)
+            }
+        }
+        .onSubmit {
+            if let item = selectedItem {
+                performPrimaryAction(for: item)
+            }
+        }
+    }
+
+    private var primaryActionTitle: String {
+        preferences.historyItemAction == .directPaste ? "粘贴" : "复制"
+    }
+
+    private var primaryActionSystemImage: String {
+        preferences.historyItemAction == .directPaste ? "arrow.turn.down.left" : "doc.on.doc"
     }
 
     private var searchField: some View {
@@ -245,6 +272,25 @@ struct ContentView: View {
     private func copy(_ item: Item) {
         clipboardMonitor.copy(item, using: modelContext)
         selectedItemID = item.persistentModelID
+        feedbackMessage = "已复制"
+    }
+
+    private func performPrimaryAction(for item: Item) {
+        selectedItemID = item.persistentModelID
+        feedbackMessage = nil
+
+        switch preferences.historyItemAction {
+        case .directPaste:
+            let result = clipboardMonitor.directPaste(item, using: modelContext)
+            switch result {
+            case .pasted:
+                feedbackMessage = "已粘贴到上一个应用"
+            case let .copiedNeedsManualPaste(reason):
+                feedbackMessage = "已复制，按 Command+V 粘贴。原因：\(reason)"
+            }
+        case .copyOnly:
+            copy(item)
+        }
     }
 
     private func deleteItems(offsets: IndexSet) {
@@ -305,6 +351,10 @@ struct ContentView: View {
                 }
             }
             .contextMenu {
+                Button(primaryActionTitle) {
+                    performPrimaryAction(for: item)
+                }
+
                 Button("复制") {
                     copy(item)
                 }

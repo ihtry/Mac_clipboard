@@ -148,7 +148,7 @@ final class AppPreferences: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.launchAtLogin = defaults.object(forKey: Self.launchAtLoginKey) as? Bool ?? false
-        self.hotKey = Self.loadHotKey(from: defaults)
+        self.hotKey = Self.loadHotKey(from: defaults) ?? (Self.hasInitializedHotKey(in: defaults) ? nil : .defaultOpenWindow)
         self.historyItemActionRaw = defaults.string(forKey: Self.historyItemActionKey) ?? HistoryItemAction.directPaste.rawValue
         self.isMonitoringPaused = defaults.object(forKey: Self.isMonitoringPausedKey) as? Bool ?? false
         self.historyLimit = defaults.object(forKey: Self.historyLimitKey) as? Int ?? 50
@@ -159,6 +159,10 @@ final class AppPreferences: ObservableObject {
         self.maximumTextLength = defaults.object(forKey: Self.maximumTextLengthKey) as? Int ?? 5000
         self.blacklistedBundlesText = defaults.string(forKey: Self.blacklistedBundlesKey) ?? ""
         self.isBootstrapping = false
+
+        if !Self.hasInitializedHotKey(in: defaults) {
+            persistHotKey()
+        }
     }
 
     var historyItemAction: HistoryItemAction {
@@ -222,6 +226,8 @@ final class AppPreferences: ObservableObject {
     }
 
     private func persistHotKey() {
+        defaults.set(true, forKey: Self.hotKeyInitializedKey)
+
         if let hotKey {
             defaults.set(Int(hotKey.keyCode), forKey: Self.hotKeyCodeKey)
             defaults.set(Int(hotKey.modifiers), forKey: Self.hotKeyModifiersKey)
@@ -242,7 +248,12 @@ final class AppPreferences: ObservableObject {
         return HotKey(keyCode: keyCode, modifiers: modifiers)
     }
 
+    private static func hasInitializedHotKey(in defaults: UserDefaults) -> Bool {
+        defaults.bool(forKey: hotKeyInitializedKey)
+    }
+
     private static let launchAtLoginKey = "launchAtLogin"
+    private static let hotKeyInitializedKey = "hotKeyInitialized"
     private static let hotKeyCodeKey = "hotKeyCode"
     private static let hotKeyModifiersKey = "hotKeyModifiers"
     private static let historyItemActionKey = "historyItemAction"
