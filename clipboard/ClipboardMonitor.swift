@@ -396,7 +396,40 @@ final class ClipboardMonitor: NSObject, ObservableObject {
             return nil
         }
 
+        if preferences.filterSensitiveText && isLikelySensitiveText(text) {
+            return nil
+        }
+
         return text
+    }
+
+    private func isLikelySensitiveText(_ text: String) -> Bool {
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowercasedText = trimmedText.lowercased()
+
+        let sensitiveKeyPattern = #"(password|passwd|pwd|secret|token|api[_-]?key|access[_-]?key|private[_-]?key|auth[_-]?token)\s*[:=]"#
+        if lowercasedText.range(of: sensitiveKeyPattern, options: .regularExpression) != nil {
+            return true
+        }
+
+        let commonTokenPatterns = [
+            #"gh[pousr]_[A-Za-z0-9_]{30,}"#,
+            #"sk-[A-Za-z0-9]{32,}"#,
+            #"xox[baprs]-[A-Za-z0-9-]{20,}"#,
+            #"AKIA[0-9A-Z]{16}"#,
+            #"-----BEGIN (RSA |EC |OPENSSH |DSA |)PRIVATE KEY-----"#
+        ]
+
+        for pattern in commonTokenPatterns where trimmedText.range(of: pattern, options: .regularExpression) != nil {
+            return true
+        }
+
+        let digitsOnly = trimmedText.filter(\.isNumber)
+        if (4...8).contains(digitsOnly.count), digitsOnly.count == trimmedText.count {
+            return true
+        }
+
+        return false
     }
 
     private func recognizeText(in image: NSImage) -> String? {

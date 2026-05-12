@@ -54,7 +54,12 @@ struct SettingsView: View {
                 Toggle("去掉首尾空白", isOn: $preferences.trimWhitespace)
                 Toggle("合并换行为空格", isOn: $preferences.collapseNewlines)
                 Toggle("忽略空白内容", isOn: $preferences.skipBlankContent)
+                Toggle("过滤敏感文本", isOn: $preferences.filterSensitiveText)
                 Stepper("最大文本长度：\(preferences.maximumTextLength)", value: $preferences.maximumTextLength, in: 100...20000, step: 100)
+
+                Text("默认跳过常见验证码、token、API Key、私钥和 password/secret 字段。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("黑名单应用") {

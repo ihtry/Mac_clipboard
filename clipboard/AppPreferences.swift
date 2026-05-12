@@ -109,6 +109,16 @@ final class AppPreferences: ObservableObject {
         }
     }
 
+    @Published var filterSensitiveText: Bool {
+        didSet {
+            guard !isBootstrapping else {
+                return
+            }
+
+            defaults.set(filterSensitiveText, forKey: Self.filterSensitiveTextKey)
+        }
+    }
+
     @Published var maximumTextLength: Int {
         didSet {
             guard !isBootstrapping else {
@@ -145,6 +155,7 @@ final class AppPreferences: ObservableObject {
         self.trimWhitespace = defaults.object(forKey: Self.trimWhitespaceKey) as? Bool ?? true
         self.collapseNewlines = defaults.object(forKey: Self.collapseNewlinesKey) as? Bool ?? false
         self.skipBlankContent = defaults.object(forKey: Self.skipBlankContentKey) as? Bool ?? true
+        self.filterSensitiveText = defaults.object(forKey: Self.filterSensitiveTextKey) as? Bool ?? true
         self.maximumTextLength = defaults.object(forKey: Self.maximumTextLengthKey) as? Int ?? 5000
         self.blacklistedBundlesText = defaults.string(forKey: Self.blacklistedBundlesKey) ?? ""
         self.isBootstrapping = false
@@ -240,6 +251,7 @@ final class AppPreferences: ObservableObject {
     private static let trimWhitespaceKey = "trimWhitespace"
     private static let collapseNewlinesKey = "collapseNewlines"
     private static let skipBlankContentKey = "skipBlankContent"
+    private static let filterSensitiveTextKey = "filterSensitiveText"
     private static let maximumTextLengthKey = "maximumTextLength"
     private static let blacklistedBundlesKey = "blacklistedBundles"
 }
