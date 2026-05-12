@@ -20,6 +20,7 @@ T clipboard is a lightweight macOS clipboard history app built with SwiftUI and 
 - Copy any history item back to the system clipboard
 - Menu bar access
 - Global hotkey support
+- Pause monitoring for privacy-sensitive moments
 - Local-first storage with SwiftData
 
 ## Download

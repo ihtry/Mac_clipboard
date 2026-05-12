@@ -58,6 +58,16 @@ final class AppPreferences: ObservableObject {
         }
     }
 
+    @Published var isMonitoringPaused: Bool {
+        didSet {
+            guard !isBootstrapping else {
+                return
+            }
+
+            defaults.set(isMonitoringPaused, forKey: Self.isMonitoringPausedKey)
+        }
+    }
+
     @Published var historyLimit: Int {
         didSet {
             guard !isBootstrapping else {
@@ -130,6 +140,7 @@ final class AppPreferences: ObservableObject {
         self.launchAtLogin = defaults.object(forKey: Self.launchAtLoginKey) as? Bool ?? false
         self.hotKey = Self.loadHotKey(from: defaults)
         self.historyItemActionRaw = defaults.string(forKey: Self.historyItemActionKey) ?? HistoryItemAction.directPaste.rawValue
+        self.isMonitoringPaused = defaults.object(forKey: Self.isMonitoringPausedKey) as? Bool ?? false
         self.historyLimit = defaults.object(forKey: Self.historyLimitKey) as? Int ?? 50
         self.trimWhitespace = defaults.object(forKey: Self.trimWhitespaceKey) as? Bool ?? true
         self.collapseNewlines = defaults.object(forKey: Self.collapseNewlinesKey) as? Bool ?? false
@@ -224,6 +235,7 @@ final class AppPreferences: ObservableObject {
     private static let hotKeyCodeKey = "hotKeyCode"
     private static let hotKeyModifiersKey = "hotKeyModifiers"
     private static let historyItemActionKey = "historyItemAction"
+    private static let isMonitoringPausedKey = "isMonitoringPaused"
     private static let historyLimitKey = "historyLimit"
     private static let trimWhitespaceKey = "trimWhitespace"
     private static let collapseNewlinesKey = "collapseNewlines"

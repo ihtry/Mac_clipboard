@@ -83,6 +83,12 @@ final class ClipboardMonitor: NSObject, ObservableObject {
             return
         }
 
+        if preferences.isMonitoringPaused {
+            lastChangeCount = pasteboard.changeCount
+            ignoredChangeCount = nil
+            return
+        }
+
         if let ignoredChangeCount, pasteboard.changeCount == ignoredChangeCount {
             lastChangeCount = pasteboard.changeCount
             self.ignoredChangeCount = nil
@@ -104,6 +110,10 @@ final class ClipboardMonitor: NSObject, ObservableObject {
 
     private func captureCurrentClipboard() {
         guard let modelContext else {
+            return
+        }
+
+        guard !preferences.isMonitoringPaused else {
             return
         }
 

@@ -35,6 +35,12 @@ struct SettingsView: View {
             }
 
             Section("交互") {
+                Toggle("暂停监听剪切板", isOn: $preferences.isMonitoringPaused)
+
+                Text(preferences.isMonitoringPaused ? "暂停期间复制的新内容不会被记录。" : "当前会自动记录新的剪切板内容。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 Picker("点击历史项", selection: $preferences.historyItemActionRaw) {
                     ForEach(HistoryItemAction.allCases) { action in
                         Text(action.title).tag(action.rawValue)

@@ -52,6 +52,13 @@ struct MenuBarHistoryView: View {
 
     var body: some View {
         VStack(spacing: 12) {
+            if preferences.isMonitoringPaused {
+                Label("剪切板监听已暂停", systemImage: "pause.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             TextField("搜索历史内容", text: $searchText)
                 .textFieldStyle(.roundedBorder)
 
@@ -96,6 +103,10 @@ struct MenuBarHistoryView: View {
 
                 SettingsLink {
                     Label("设置", systemImage: "gearshape")
+                }
+
+                Button(preferences.isMonitoringPaused ? "继续监听" : "暂停监听") {
+                    preferences.isMonitoringPaused.toggle()
                 }
 
                 Button("清空历史", role: .destructive) {
