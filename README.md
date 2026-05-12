@@ -1,38 +1,42 @@
 # T clipboard
 
-T clipboard is a macOS clipboard history app built with SwiftUI and SwiftData.
+[中文](README.zh-CN.md) | English
 
-中文文档: [README.zh-CN.md](README.zh-CN.md)
+T clipboard is a lightweight macOS clipboard history app built with SwiftUI and SwiftData. It records clipboard content locally and lets you quickly search, pin, and copy previous items again.
 
-## Features
+## Highlights
 
-- Automatically records copied text, images, and file paths.
-- Search clipboard history.
-- Pin important clipboard items.
-- Copy previous items back to the system clipboard.
-- Menu bar access and global hotkey support.
-- Local-first storage.
+- Text, image, and file-path clipboard history
+- Fast keyword search
+- Pin important clipboard items
+- Copy any history item back to the system clipboard
+- Menu bar access
+- Global hotkey support
+- Local-first storage with SwiftData
 
-## Installation
+## Download
 
-This repository only stores source code. Build the app locally with Xcode, or create a DMG from the Release build.
+Download the latest `T-clipboard.dmg` from [GitHub Releases](https://github.com/ihtry/Mac_clipboard/releases).
 
-## Build
+Open the DMG, then drag `T clipboard.app` into `Applications`.
+
+## Build From Source
 
 Requirements:
 
-- macOS with Xcode installed
-- Xcode command line tools
+- macOS
+- Xcode
+- Xcode Command Line Tools
 
-Build from the repository root:
+Build a Release app:
 
 ```sh
 xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release build
 ```
 
-## Package DMG
+## Package A DMG
 
-After building Release, create a drag-to-install DMG:
+After a Release build, create a standard drag-to-install DMG:
 
 ```sh
 rm -rf dist/dmg-root dist/T-clipboard.dmg
@@ -42,8 +46,15 @@ ln -s /Applications dist/dmg-root/Applications
 hdiutil create -volname "T clipboard" -srcfolder dist/dmg-root -ov -format UDZO dist/T-clipboard.dmg
 ```
 
-The generated DMG contains `T clipboard.app` and an `Applications` shortcut, so users can install it by dragging the app into `Applications`.
+The generated DMG contains:
+
+- `T clipboard.app`
+- `Applications` shortcut
+
+## Repository Policy
+
+The repository stores source code only. Build artifacts such as DMG files are ignored by Git and should be distributed through GitHub Releases.
 
 ## License
 
-MIT
+[MIT](LICENSE)

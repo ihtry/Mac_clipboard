@@ -1,30 +1,34 @@
 # T clipboard
 
-T clipboard 是一个使用 SwiftUI 和 SwiftData 构建的 macOS 剪切板历史应用。
+中文 | [English](README.md)
 
-English documentation: [README.md](README.md)
+T clipboard 是一个轻量级 macOS 剪切板历史应用，使用 SwiftUI 和 SwiftData 构建。它会在本地记录剪切板内容，并支持快速搜索、固定和再次复制历史记录。
 
-## 功能
+## 功能亮点
 
-- 自动记录复制的文本、图片和文件路径。
-- 搜索剪切板历史。
-- 固定重要的剪切板记录。
-- 将历史记录重新复制到系统剪切板。
-- 支持菜单栏入口和全局快捷键。
-- 数据优先保存在本地。
+- 记录文本、图片和文件路径
+- 快速搜索剪切板历史
+- 固定重要记录
+- 将任意历史记录重新复制到系统剪切板
+- 菜单栏入口
+- 全局快捷键支持
+- 基于 SwiftData 的本地优先存储
 
-## 安装
+## 下载
 
-本仓库只保存源代码。你可以使用 Xcode 本地构建应用，或从 Release 构建结果生成 DMG 安装包。
+从 [GitHub Releases](https://github.com/ihtry/Mac_clipboard/releases) 下载最新的 `T-clipboard.dmg`。
 
-## 构建
+打开 DMG 后，将 `T clipboard.app` 拖入 `Applications` 即可安装。
+
+## 从源码构建
 
 环境要求：
 
-- 已安装 Xcode 的 macOS
+- macOS
+- Xcode
 - Xcode Command Line Tools
 
-在仓库根目录执行：
+构建 Release 版本：
 
 ```sh
 xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release build
@@ -32,7 +36,7 @@ xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release
 
 ## 打包 DMG
 
-Release 构建完成后，可以创建拖拽安装 DMG：
+Release 构建完成后，可以创建标准拖拽安装 DMG：
 
 ```sh
 rm -rf dist/dmg-root dist/T-clipboard.dmg
@@ -42,8 +46,15 @@ ln -s /Applications dist/dmg-root/Applications
 hdiutil create -volname "T clipboard" -srcfolder dist/dmg-root -ov -format UDZO dist/T-clipboard.dmg
 ```
 
-生成的 DMG 内包含 `T clipboard.app` 和 `Applications` 快捷方式，用户打开后拖动应用到 `Applications` 即可安装。
+生成的 DMG 包含：
+
+- `T clipboard.app`
+- `Applications` 快捷方式
+
+## 仓库说明
+
+本仓库只保存源代码。DMG 等构建产物已被 Git 忽略，应通过 GitHub Releases 分发。
 
 ## 开源协议
 
-MIT
+[MIT](LICENSE)
