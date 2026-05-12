@@ -68,7 +68,7 @@ jobs:
 
       - name: Generate appcast
         env:
-          DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}
+          DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}/
         run: |
           set -euo pipefail
           /Applications/Sparkle.app/Contents/Resources/generate_appcast \
