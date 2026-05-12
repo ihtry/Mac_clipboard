@@ -245,15 +245,15 @@ final class ClipboardMonitor: NSObject, ObservableObject {
         copy(item, using: modelContext)
 
         if preferences.historyItemAction == .copyOnly {
-            return .copiedNeedsManualPaste(reason: "当前设置为仅复制")
+            return .copiedNeedsManualPaste(reason: preferences.strings.currentSettingIsCopyOnly)
         }
 
         guard let targetApplication = currentPasteTargetApplication() else {
-            return .copiedNeedsManualPaste(reason: "未找到当前窗口")
+            return .copiedNeedsManualPaste(reason: preferences.strings.noCurrentWindow)
         }
 
         guard ensureAccessibilityPermission(prompt: true) else {
-            return .copiedNeedsManualPaste(reason: "没有辅助功能权限")
+            return .copiedNeedsManualPaste(reason: preferences.strings.missingAccessibilityPermission)
         }
 
         targetApplication.activate()

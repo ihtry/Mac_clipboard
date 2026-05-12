@@ -23,6 +23,10 @@ struct ContentView: View {
 
     init() {}
 
+    private var strings: AppStrings {
+        preferences.strings
+    }
+
     private var filteredItems: [Item] {
         let trimmedQuery = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
@@ -64,22 +68,22 @@ struct ContentView: View {
                 Group {
                     if items.isEmpty {
                         ContentUnavailableView(
-                            "暂无剪切板历史",
+                            strings.emptyClipboardHistoryTitle,
                             systemImage: "clipboard",
-                            description: Text("复制任意文本后，这里会自动记录。")
+                            description: Text(strings.emptyClipboardHistoryDescription)
                         )
                     } else if filteredItems.isEmpty {
                         ContentUnavailableView.search(text: searchText)
                     } else {
                         List {
                             if !pinnedItems.isEmpty {
-                                Section("固定") {
+                                Section(strings.pinnedSection) {
                                     historyRows(for: pinnedItems)
                                 }
                             }
 
                             if !recentItems.isEmpty {
-                                Section(pinnedItems.isEmpty ? "历史记录" : "最近") {
+                                Section(pinnedItems.isEmpty ? strings.historySection : strings.recentSection) {
                                     historyRows(for: recentItems)
                                 }
                             }
@@ -92,7 +96,7 @@ struct ContentView: View {
             .padding(.horizontal, 12)
             .padding(.top, 12)
             .padding(.bottom, 10)
-            .navigationTitle("剪切板")
+            .navigationTitle(strings.clipboardTitle)
             .navigationSplitViewColumnWidth(min: 320, ideal: 420, max: 520)
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
@@ -110,12 +114,12 @@ struct ContentView: View {
                             delete(item)
                         }
                     } label: {
-                        Label("删除", systemImage: "trash")
+                        Label(strings.delete, systemImage: "trash")
                     }
                     .disabled(selectedItem == nil)
 
                     Button(role: .destructive, action: clearHistory) {
-                        Label("清空", systemImage: "trash.slash")
+                        Label(strings.clear, systemImage: "trash.slash")
                     }
                     .disabled(items.isEmpty)
 
@@ -123,7 +127,7 @@ struct ContentView: View {
                         Button {
                             togglePin(item)
                         } label: {
-                            Label(item.isPinned ? "取消固定" : "固定", systemImage: item.isPinned ? "pin.slash" : "pin")
+                            Label(item.isPinned ? strings.unpin : strings.pin, systemImage: item.isPinned ? "pin.slash" : "pin")
                         }
                     }
                 }
@@ -144,7 +148,7 @@ struct ContentView: View {
                                             .font(.title3.weight(.semibold))
                                             .lineLimit(2)
 
-                                        Text(item.detailSummary)
+                                        Text(item.detailSummary(for: strings.language))
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                     }
@@ -164,7 +168,7 @@ struct ContentView: View {
 
                                 Divider()
 
-                                ClipboardDetailContent(item: item)
+                                ClipboardDetailContent(item: item, strings: strings)
                             }
                             .padding(20)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -177,7 +181,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(20)
                     }
-                    .navigationTitle("内容详情")
+                    .navigationTitle(strings.contentDetail)
                     .toolbar {
                         ToolbarItem(placement: .primaryAction) {
                             Button {
@@ -189,9 +193,9 @@ struct ContentView: View {
                     }
                 } else {
                     ContentUnavailableView(
-                        "选择一条记录",
+                        strings.selectRecordTitle,
                         systemImage: "text.viewfinder",
-                        description: Text("右侧会显示完整内容，并可再次复制。")
+                        description: Text(strings.selectRecordDescription)
                     )
                 }
             }
@@ -206,7 +210,7 @@ struct ContentView: View {
                         .accessibilityLabel("GitHub")
                 }
                     .buttonStyle(.plain)
-                    .help("打开 GitHub 项目地址")
+                    .help(strings.githubHelp)
             }
         }
         .task {
@@ -242,7 +246,7 @@ struct ContentView: View {
     }
 
     private var primaryActionTitle: String {
-        preferences.historyItemAction == .directPaste ? "粘贴" : "复制"
+        preferences.historyItemAction == .directPaste ? strings.paste : strings.copy
     }
 
     private var primaryActionSystemImage: String {
@@ -254,7 +258,7 @@ struct ContentView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
 
-            TextField("搜索历史内容", text: $searchText)
+            TextField(strings.searchHistory, text: $searchText)
                 .textFieldStyle(.plain)
         }
         .padding(.horizontal, 14)
@@ -272,7 +276,7 @@ struct ContentView: View {
     private func copy(_ item: Item) {
         clipboardMonitor.copy(item, using: modelContext)
         selectedItemID = item.persistentModelID
-        feedbackMessage = "已复制"
+        feedbackMessage = strings.copied
     }
 
     private func performPrimaryAction(for item: Item) {
@@ -284,9 +288,9 @@ struct ContentView: View {
             let result = clipboardMonitor.directPaste(item, using: modelContext)
             switch result {
             case .pasted:
-                feedbackMessage = "已粘贴到上一个应用"
+                feedbackMessage = strings.pastedToPreviousApp
             case let .copiedNeedsManualPaste(reason):
-                feedbackMessage = "已复制，按 Command+V 粘贴。原因：\(reason)"
+                feedbackMessage = strings.copiedNeedsManualPaste(reason: reason)
             }
         case .copyOnly:
             copy(item)
@@ -336,7 +340,8 @@ struct ContentView: View {
             } label: {
                 ClipboardHistoryRow(
                     item: item,
-                    isSelected: selectedItem?.persistentModelID == item.persistentModelID
+                    isSelected: selectedItem?.persistentModelID == item.persistentModelID,
+                    strings: strings
                 )
             }
             .buttonStyle(.plain)
@@ -347,7 +352,7 @@ struct ContentView: View {
                 Button(role: .destructive) {
                     delete(item)
                 } label: {
-                    Label("删除", systemImage: "trash")
+                    Label(strings.delete, systemImage: "trash")
                 }
             }
             .contextMenu {
@@ -355,15 +360,15 @@ struct ContentView: View {
                     performPrimaryAction(for: item)
                 }
 
-                Button("复制") {
+                Button(strings.copy) {
                     copy(item)
                 }
 
-                Button(item.isPinned ? "取消固定" : "固定") {
+                Button(item.isPinned ? strings.unpin : strings.pin) {
                     togglePin(item)
                 }
 
-                Button("删除", role: .destructive) {
+                Button(strings.delete, role: .destructive) {
                     delete(item)
                 }
             }
@@ -375,6 +380,7 @@ struct ContentView: View {
 private struct ClipboardHistoryRow: View {
     let item: Item
     let isSelected: Bool
+    let strings: AppStrings
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -395,7 +401,7 @@ private struct ClipboardHistoryRow: View {
                     .multilineTextAlignment(.leading)
 
                 HStack(spacing: 8) {
-                    Text(item.kindLabel)
+                    Text(item.kindLabel(for: strings.language))
                         .font(.caption2.weight(.medium))
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -435,6 +441,7 @@ private struct ClipboardHistoryRow: View {
 
 private struct ClipboardDetailContent: View {
     let item: Item
+    let strings: AppStrings
 
     var body: some View {
         switch item.kind {
@@ -451,7 +458,7 @@ private struct ClipboardDetailContent: View {
                     .frame(maxWidth: 520, alignment: .leading)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                Text("图片数据不可用")
+                Text(strings.imageDataUnavailable)
                     .foregroundStyle(.secondary)
             }
         case .file:

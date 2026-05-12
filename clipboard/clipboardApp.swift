@@ -54,7 +54,7 @@ struct clipboardApp: App {
         }
         .modelContainer(sharedModelContainer)
 
-        MenuBarExtra("剪切板", systemImage: "clipboard") {
+        MenuBarExtra(preferences.strings.clipboardTitle, systemImage: "clipboard") {
             MenuBarHistoryView()
                 .frame(width: 380, height: 480)
                 .environmentObject(clipboardMonitor)

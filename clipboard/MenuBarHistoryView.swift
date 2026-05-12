@@ -50,16 +50,20 @@ struct MenuBarHistoryView: View {
         Array(filteredItems.prefix(20)).filter { !$0.isPinned }
     }
 
+    private var strings: AppStrings {
+        preferences.strings
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             if preferences.isMonitoringPaused {
-                Label("剪切板监听已暂停", systemImage: "pause.circle")
+                Label(strings.monitoringPaused, systemImage: "pause.circle")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            TextField("搜索历史内容", text: $searchText)
+            TextField(strings.searchHistory, text: $searchText)
                 .textFieldStyle(.roundedBorder)
 
             if items.isEmpty {
@@ -70,13 +74,13 @@ struct MenuBarHistoryView: View {
             } else {
                 List(selection: $selectedItemID) {
                     if !pinnedItems.isEmpty {
-                        Section("固定") {
+                        Section(strings.pinnedSection) {
                             menuRows(for: pinnedItems)
                         }
                     }
 
                     if !recentItems.isEmpty {
-                        Section(pinnedItems.isEmpty ? "历史记录" : "最近") {
+                        Section(pinnedItems.isEmpty ? strings.historySection : strings.recentSection) {
                             menuRows(for: recentItems)
                         }
                     }
@@ -95,21 +99,21 @@ struct MenuBarHistoryView: View {
             Divider()
 
             HStack {
-                Button("打开主窗口") {
+                Button(strings.openMainWindow) {
                     openWindow(id: AppWindowID.main)
                 }
 
                 Spacer()
 
                 SettingsLink {
-                    Label("设置", systemImage: "gearshape")
+                    Label(strings.settings, systemImage: "gearshape")
                 }
 
-                Button(preferences.isMonitoringPaused ? "继续监听" : "暂停监听") {
+                Button(preferences.isMonitoringPaused ? strings.resumeMonitoring : strings.pauseMonitoring) {
                     preferences.isMonitoringPaused.toggle()
                 }
 
-                Button("清空历史", role: .destructive) {
+                Button(strings.clearHistory, role: .destructive) {
                     clearHistory()
                 }
                 .disabled(items.isEmpty)
@@ -142,9 +146,9 @@ struct MenuBarHistoryView: View {
             Spacer()
 
             ContentUnavailableView(
-                "暂无历史",
+                strings.emptyHistoryTitle,
                 systemImage: "clipboard",
-                description: Text("复制文本后会自动出现在这里。")
+                description: Text(strings.emptyHistoryDescription)
             )
 
             Spacer()
@@ -180,11 +184,11 @@ struct MenuBarHistoryView: View {
             case .pasted:
                 dismiss()
             case let .copiedNeedsManualPaste(reason):
-                feedbackMessage = "已复制，按 Command+V 粘贴。原因：\(reason)"
+                feedbackMessage = strings.copiedNeedsManualPaste(reason: reason)
             }
         case .copyOnly:
             clipboardMonitor.copy(item, using: modelContext)
-            feedbackMessage = "已复制"
+            feedbackMessage = strings.copied
         }
     }
 
@@ -245,19 +249,19 @@ struct MenuBarHistoryView: View {
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .contextMenu {
-                Button(preferences.historyItemAction == .directPaste ? "直接粘贴" : "仅复制") {
+                Button(preferences.historyItemAction == .directPaste ? strings.directPaste : strings.copyOnly) {
                     performPrimaryAction(for: item)
                 }
 
-                Button("复制") {
+                Button(strings.copy) {
                     clipboardMonitor.copy(item, using: modelContext)
                 }
 
-                Button(item.isPinned ? "取消固定" : "固定") {
+                Button(item.isPinned ? strings.unpin : strings.pin) {
                     togglePin(item)
                 }
 
-                Button("删除", role: .destructive) {
+                Button(strings.delete, role: .destructive) {
                     delete(item)
                 }
             }

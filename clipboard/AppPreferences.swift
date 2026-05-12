@@ -14,15 +14,6 @@ enum HistoryItemAction: String, CaseIterable, Identifiable {
     case copyOnly
 
     var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .directPaste:
-            return "直接粘贴"
-        case .copyOnly:
-            return "仅复制"
-        }
-    }
 }
 
 @MainActor
@@ -55,6 +46,16 @@ final class AppPreferences: ObservableObject {
             }
 
             defaults.set(historyItemActionRaw, forKey: Self.historyItemActionKey)
+        }
+    }
+
+    @Published var languageRaw: String {
+        didSet {
+            guard !isBootstrapping else {
+                return
+            }
+
+            defaults.set(languageRaw, forKey: Self.languageKey)
         }
     }
 
@@ -150,6 +151,7 @@ final class AppPreferences: ObservableObject {
         self.launchAtLogin = defaults.object(forKey: Self.launchAtLoginKey) as? Bool ?? false
         self.hotKey = Self.loadHotKey(from: defaults) ?? (Self.hasInitializedHotKey(in: defaults) ? nil : .defaultOpenWindow)
         self.historyItemActionRaw = defaults.string(forKey: Self.historyItemActionKey) ?? HistoryItemAction.directPaste.rawValue
+        self.languageRaw = defaults.string(forKey: Self.languageKey) ?? AppLanguage.simplifiedChinese.rawValue
         self.isMonitoringPaused = defaults.object(forKey: Self.isMonitoringPausedKey) as? Bool ?? false
         self.historyLimit = defaults.object(forKey: Self.historyLimitKey) as? Int ?? 50
         self.trimWhitespace = defaults.object(forKey: Self.trimWhitespaceKey) as? Bool ?? true
@@ -170,6 +172,15 @@ final class AppPreferences: ObservableObject {
         set { historyItemActionRaw = newValue.rawValue }
     }
 
+    var language: AppLanguage {
+        get { AppLanguage(rawValue: languageRaw) ?? .simplifiedChinese }
+        set { languageRaw = newValue.rawValue }
+    }
+
+    var strings: AppStrings {
+        AppStrings(language: language)
+    }
+
     var blacklistedBundleIDs: Set<String> {
         Set(
             blacklistedBundlesText
@@ -182,15 +193,15 @@ final class AppPreferences: ObservableObject {
     var launchAtLoginStatusText: String {
         switch SMAppService.mainApp.status {
         case .enabled:
-            return "已启用"
+            return strings.text("已启用", "Enabled")
         case .notRegistered:
-            return "未启用"
+            return strings.text("未启用", "Disabled")
         case .requiresApproval:
-            return "需要在系统设置中批准"
+            return strings.text("需要在系统设置中批准", "Requires approval in System Settings")
         case .notFound:
-            return "当前构建暂不可注册"
+            return strings.text("当前构建暂不可注册", "Current build cannot be registered")
         @unknown default:
-            return "未知状态"
+            return strings.text("未知状态", "Unknown")
         }
     }
 
@@ -257,6 +268,7 @@ final class AppPreferences: ObservableObject {
     private static let hotKeyCodeKey = "hotKeyCode"
     private static let hotKeyModifiersKey = "hotKeyModifiers"
     private static let historyItemActionKey = "historyItemAction"
+    private static let languageKey = "language"
     private static let isMonitoringPausedKey = "isMonitoringPaused"
     private static let historyLimitKey = "historyLimit"
     private static let trimWhitespaceKey = "trimWhitespace"

@@ -10,64 +10,80 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var preferences: AppPreferences
 
+    private var strings: AppStrings {
+        preferences.strings
+    }
+
     var body: some View {
         Form {
-            Section("启动") {
-                Toggle("开机启动", isOn: $preferences.launchAtLogin)
+            Section(strings.launchSection) {
+                Toggle(strings.launchAtLogin, isOn: $preferences.launchAtLogin)
 
-                Text("当前状态：\(preferences.launchAtLoginStatusText)")
+                Text(strings.launchAtLoginStatus(preferences.launchAtLoginStatusText))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 if let launchAtLoginError = preferences.launchAtLoginError {
-                    Text("设置失败：\(launchAtLoginError)")
+                    Text(strings.launchAtLoginError(launchAtLoginError))
                         .font(.caption)
                         .foregroundStyle(.red)
                 }
             }
 
-            Section("快捷键") {
-                HotKeyRecorderView(hotKey: $preferences.hotKey)
+            Section(strings.hotKeySection) {
+                HotKeyRecorderView(hotKey: $preferences.hotKey, strings: strings)
 
-                Text("设置后可在任何地方唤起主窗口。")
+                Text(strings.hotKeyHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("交互") {
-                Toggle("暂停监听剪切板", isOn: $preferences.isMonitoringPaused)
-
-                Text(preferences.isMonitoringPaused ? "暂停期间复制的新内容不会被记录。" : "当前会自动记录新的剪切板内容。")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Picker("点击历史项", selection: $preferences.historyItemActionRaw) {
-                    ForEach(HistoryItemAction.allCases) { action in
-                        Text(action.title).tag(action.rawValue)
+            Section(strings.languageSection) {
+                Picker(strings.appLanguage, selection: $preferences.languageRaw) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.title).tag(language.rawValue)
                     }
                 }
 
-                Stepper("历史上限：\(preferences.historyLimit)", value: $preferences.historyLimit, in: 10...500, step: 10)
-            }
-
-            Section("文本清洗") {
-                Toggle("去掉首尾空白", isOn: $preferences.trimWhitespace)
-                Toggle("合并换行为空格", isOn: $preferences.collapseNewlines)
-                Toggle("忽略空白内容", isOn: $preferences.skipBlankContent)
-                Toggle("过滤敏感文本", isOn: $preferences.filterSensitiveText)
-                Stepper("最大文本长度：\(preferences.maximumTextLength)", value: $preferences.maximumTextLength, in: 100...20000, step: 100)
-
-                Text("默认跳过常见验证码、token、API Key、私钥和 password/secret 字段。")
+                Text(strings.languageHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("黑名单应用") {
+            Section(strings.interactionSection) {
+                Toggle(strings.pauseClipboardMonitoring, isOn: $preferences.isMonitoringPaused)
+
+                Text(preferences.isMonitoringPaused ? strings.pausedHint : strings.activeHint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Picker(strings.historyItemClickAction, selection: $preferences.historyItemActionRaw) {
+                    ForEach(HistoryItemAction.allCases) { action in
+                        Text(action.title(for: strings)).tag(action.rawValue)
+                    }
+                }
+
+                Stepper(strings.historyLimit(preferences.historyLimit), value: $preferences.historyLimit, in: 10...500, step: 10)
+            }
+
+            Section(strings.textCleaningSection) {
+                Toggle(strings.trimWhitespace, isOn: $preferences.trimWhitespace)
+                Toggle(strings.collapseNewlines, isOn: $preferences.collapseNewlines)
+                Toggle(strings.skipBlankContent, isOn: $preferences.skipBlankContent)
+                Toggle(strings.filterSensitiveText, isOn: $preferences.filterSensitiveText)
+                Stepper(strings.maximumTextLength(preferences.maximumTextLength), value: $preferences.maximumTextLength, in: 100...20000, step: 100)
+
+                Text(strings.sensitiveFilterHint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section(strings.blacklistedAppsSection) {
                 TextEditor(text: $preferences.blacklistedBundlesText)
                     .font(.system(.body, design: .monospaced))
                     .frame(minHeight: 120)
 
-                Text("每行一个 bundle id，例如 `com.apple.keychainaccess`。黑名单应用复制的内容不会被记录。")
+                Text(strings.blacklistHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -80,6 +96,7 @@ struct SettingsView: View {
 
 private struct HotKeyRecorderView: View {
     @Binding var hotKey: HotKey?
+    let strings: AppStrings
 
     @State private var isRecording = false
     @State private var eventMonitor: Any?
@@ -89,12 +106,12 @@ private struct HotKeyRecorderView: View {
             Button {
                 toggleRecording()
             } label: {
-                Text(isRecording ? "按下新的快捷键" : (hotKey?.displayString ?? "点击设置快捷键"))
+                Text(isRecording ? strings.recordHotKey : (hotKey?.displayString ?? strings.setHotKey))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.bordered)
 
-            Button("清除") {
+            Button(strings.clearHotKey) {
                 hotKey = nil
                 stopRecording()
             }

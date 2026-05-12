@@ -78,28 +78,28 @@ final class Item {
         }
     }
 
-    var kindLabel: String {
+    func kindLabel(for language: AppLanguage) -> String {
         switch kind {
         case .text:
-            return "文本"
+            return language == .simplifiedChinese ? "文本" : "Text"
         case .image:
-            return "图片"
+            return language == .simplifiedChinese ? "图片" : "Image"
         case .file:
-            return "文件"
+            return language == .simplifiedChinese ? "文件" : "File"
         }
     }
 
-    var detailSummary: String {
+    func detailSummary(for language: AppLanguage) -> String {
         switch kind {
         case .text:
-            return "\(content.count) 个字符"
+            return language == .simplifiedChinese ? "\(content.count) 个字符" : "\(content.count) characters"
         case .image:
             if let recognizedText, !recognizedText.isEmpty {
-                return "图片已识别文本"
+                return language == .simplifiedChinese ? "图片已识别文本" : "Image text recognized"
             }
             return content
         case .file:
-            return "\(filePaths.count) 个文件"
+            return language == .simplifiedChinese ? "\(filePaths.count) 个文件" : "\(filePaths.count) files"
         }
     }
 
