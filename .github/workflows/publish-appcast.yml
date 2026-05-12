@@ -71,7 +71,7 @@ jobs:
           DOWNLOAD_URL_PREFIX: https://github.com/ihtry/Mac_clipboard/releases/download/${{ steps.release.outputs.tag }}/
         run: |
           set -euo pipefail
-          GENERATE_APPCAST="$(find /Applications -path '*/generate_appcast' -type f -perm +111 | head -n 1)"
+          GENERATE_APPCAST="$(find /Applications /opt/homebrew/Caskroom /usr/local/Caskroom -path '*/generate_appcast' -type f -perm +111 2>/dev/null | head -n 1)"
           test -n "$GENERATE_APPCAST"
           "$GENERATE_APPCAST" --help | head -n 1
           "$GENERATE_APPCAST" \
