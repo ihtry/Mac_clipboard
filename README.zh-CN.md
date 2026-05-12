@@ -1,8 +1,16 @@
 # T clipboard
 
+[![Release](https://img.shields.io/github/v/release/ihtry/Mac_clipboard?display_name=tag)](https://github.com/ihtry/Mac_clipboard/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
+![Swift](https://img.shields.io/badge/Swift-5-orange.svg)
+![Xcode](https://img.shields.io/badge/Xcode-17-blue.svg)
+
 中文 | [English](README.md)
 
 T clipboard 是一个轻量级 macOS 剪切板历史应用，使用 SwiftUI 和 SwiftData 构建。它会在本地记录剪切板内容，并支持快速搜索、固定和再次复制历史记录。
+
+**标签：** `macOS` `SwiftUI` `SwiftData` `剪切板管理器` `菜单栏应用` `全局快捷键`
 
 ## 功能亮点
 
