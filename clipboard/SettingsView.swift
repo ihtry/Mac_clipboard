@@ -14,6 +14,20 @@ struct SettingsView: View {
         preferences.strings
     }
 
+    private var historyLimitBinding: Binding<Int> {
+        Binding(
+            get: { preferences.historyLimit },
+            set: { preferences.historyLimit = AppPreferences.clampedHistoryLimit($0) }
+        )
+    }
+
+    private var maximumTextLengthBinding: Binding<Int> {
+        Binding(
+            get: { preferences.maximumTextLength },
+            set: { preferences.maximumTextLength = AppPreferences.clampedMaximumTextLength($0) }
+        )
+    }
+
     var body: some View {
         Form {
             Section(strings.launchSection) {
@@ -63,7 +77,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Stepper(strings.historyLimit(preferences.historyLimit), value: $preferences.historyLimit, in: 10...500, step: 10)
+                Stepper(strings.historyLimit(preferences.historyLimit), value: historyLimitBinding, in: 10...500, step: 10)
             }
 
             Section(strings.textCleaningSection) {
@@ -71,7 +85,7 @@ struct SettingsView: View {
                 Toggle(strings.collapseNewlines, isOn: $preferences.collapseNewlines)
                 Toggle(strings.skipBlankContent, isOn: $preferences.skipBlankContent)
                 Toggle(strings.filterSensitiveText, isOn: $preferences.filterSensitiveText)
-                Stepper(strings.maximumTextLength(preferences.maximumTextLength), value: $preferences.maximumTextLength, in: 100...20000, step: 100)
+                Stepper(strings.maximumTextLength(preferences.maximumTextLength), value: maximumTextLengthBinding, in: 100...20000, step: 100)
 
                 Text(strings.sensitiveFilterHint)
                     .font(.caption)

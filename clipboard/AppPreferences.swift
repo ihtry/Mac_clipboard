@@ -75,7 +75,6 @@ final class AppPreferences: ObservableObject {
                 return
             }
 
-            historyLimit = max(10, min(historyLimit, 500))
             defaults.set(historyLimit, forKey: Self.historyLimitKey)
         }
     }
@@ -126,7 +125,6 @@ final class AppPreferences: ObservableObject {
                 return
             }
 
-            maximumTextLength = max(100, min(maximumTextLength, 20000))
             defaults.set(maximumTextLength, forKey: Self.maximumTextLengthKey)
         }
     }
@@ -153,12 +151,12 @@ final class AppPreferences: ObservableObject {
         self.historyItemActionRaw = defaults.string(forKey: Self.historyItemActionKey) ?? HistoryItemAction.directPaste.rawValue
         self.languageRaw = defaults.string(forKey: Self.languageKey) ?? AppLanguage.simplifiedChinese.rawValue
         self.isMonitoringPaused = defaults.object(forKey: Self.isMonitoringPausedKey) as? Bool ?? false
-        self.historyLimit = defaults.object(forKey: Self.historyLimitKey) as? Int ?? 50
+        self.historyLimit = Self.clampedHistoryLimit(defaults.object(forKey: Self.historyLimitKey) as? Int ?? 50)
         self.trimWhitespace = defaults.object(forKey: Self.trimWhitespaceKey) as? Bool ?? true
         self.collapseNewlines = defaults.object(forKey: Self.collapseNewlinesKey) as? Bool ?? false
         self.skipBlankContent = defaults.object(forKey: Self.skipBlankContentKey) as? Bool ?? true
         self.filterSensitiveText = defaults.object(forKey: Self.filterSensitiveTextKey) as? Bool ?? true
-        self.maximumTextLength = defaults.object(forKey: Self.maximumTextLengthKey) as? Int ?? 5000
+        self.maximumTextLength = Self.clampedMaximumTextLength(defaults.object(forKey: Self.maximumTextLengthKey) as? Int ?? 5000)
         self.blacklistedBundlesText = defaults.string(forKey: Self.blacklistedBundlesKey) ?? ""
         self.isBootstrapping = false
 
@@ -261,6 +259,14 @@ final class AppPreferences: ObservableObject {
 
     private static func hasInitializedHotKey(in defaults: UserDefaults) -> Bool {
         defaults.bool(forKey: hotKeyInitializedKey)
+    }
+
+    static func clampedHistoryLimit(_ value: Int) -> Int {
+        min(max(value, 10), 500)
+    }
+
+    static func clampedMaximumTextLength(_ value: Int) -> Int {
+        min(max(value, 100), 20000)
     }
 
     private static let launchAtLoginKey = "launchAtLogin"
