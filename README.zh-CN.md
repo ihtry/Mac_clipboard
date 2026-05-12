@@ -21,6 +21,7 @@ T clipboard 是一个轻量级 macOS 剪切板历史应用，使用 SwiftUI 和 
 - 菜单栏入口
 - 全局快捷键支持，默认 `⌘⇧V`
 - 应用内简体中文 / English 切换
+- 基于 Sparkle 的更新检查
 - 支持隐私场景下暂停监听
 - 可选敏感文本过滤
 - 基于 SwiftData 的本地优先存储
@@ -53,6 +54,14 @@ xcodebuild -project clipboard.xcodeproj -scheme clipboard -configuration Release
 scripts/package-dmg.sh
 ```
 
+如需在 Release 构建中启用 Sparkle 更新检查，传入 appcast 地址和 EdDSA 公钥：
+
+```sh
+SPARKLE_FEED_URL="https://ihtry.github.io/Mac_clipboard/appcast.xml" \
+SPARKLE_PUBLIC_ED_KEY="your_sparkle_public_key" \
+scripts/package-dmg.sh
+```
+
 生成的 DMG 包含：
 
 - `T clipboard.app`
@@ -72,6 +81,18 @@ xcrun notarytool store-credentials "t-clipboard-notary"
 
 ```sh
 NOTARYTOOL_PROFILE=t-clipboard-notary scripts/notarize-dmg.sh dist/T-clipboard.dmg
+```
+
+## 自动更新
+
+T clipboard 已集成 Sparkle 更新检查。生成 Sparkle 签名密钥、发布 `appcast.xml` 后，使用 `SPARKLE_FEED_URL` 和 `SPARKLE_PUBLIC_ED_KEY` 构建 Release。
+
+如果没有配置这两个值，应用会自动禁用“检查更新”按钮。
+
+打包签名后的 Release 后，生成 appcast：
+
+```sh
+SPARKLE_GENERATE_APPCAST="/path/to/generate_appcast" scripts/generate-appcast.sh dist
 ```
 
 ## 仓库说明

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var preferences: AppPreferences
+    @EnvironmentObject private var updateManager: UpdateManager
 
     private var strings: AppStrings {
         preferences.strings
@@ -60,6 +61,17 @@ struct SettingsView: View {
                 }
 
                 Text(strings.languageHint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section(strings.updatesSection) {
+                Button(strings.checkForUpdates) {
+                    updateManager.checkForUpdates()
+                }
+                .disabled(!updateManager.isAvailable)
+
+                Text(updateManager.isAvailable ? strings.updatesEnabledHint : strings.updatesDisabledHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

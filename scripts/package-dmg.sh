@@ -58,6 +58,8 @@ xcodebuild \
   -scheme "$SCHEME" \
   -configuration "$CONFIGURATION" \
   -derivedDataPath "$DERIVED_DATA" \
+  SPARKLE_FEED_URL="${SPARKLE_FEED_URL:-}" \
+  SPARKLE_PUBLIC_ED_KEY="${SPARKLE_PUBLIC_ED_KEY:-}" \
   build
 
 APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/clipboard.app"

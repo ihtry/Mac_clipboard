@@ -22,6 +22,7 @@ struct clipboardApp: App {
     private let clipboardMonitor: ClipboardMonitor
     private let preferences: AppPreferences
     private let hotKeyManager: HotKeyManager
+    private let updateManager: UpdateManager
 
     init() {
         let schema = Schema([
@@ -39,6 +40,7 @@ struct clipboardApp: App {
         clipboardMonitor = ClipboardMonitor(preferences: preferences)
         clipboardMonitor.start(using: sharedModelContainer.mainContext)
         hotKeyManager = HotKeyManager(preferences: preferences)
+        updateManager = UpdateManager()
     }
 
     var body: some Scene {
@@ -47,6 +49,7 @@ struct clipboardApp: App {
                 .frame(minWidth: 900, minHeight: 560)
                 .environmentObject(clipboardMonitor)
                 .environmentObject(preferences)
+                .environmentObject(updateManager)
                 .background(
                     WindowCommandBridge(appDelegate: appDelegate, hotKeyManager: hotKeyManager)
                 )
@@ -59,6 +62,7 @@ struct clipboardApp: App {
                 .frame(width: 380, height: 480)
                 .environmentObject(clipboardMonitor)
                 .environmentObject(preferences)
+                .environmentObject(updateManager)
         }
         .menuBarExtraStyle(.window)
         .modelContainer(sharedModelContainer)
@@ -66,6 +70,7 @@ struct clipboardApp: App {
         Settings {
             SettingsView()
                 .environmentObject(preferences)
+                .environmentObject(updateManager)
         }
     }
 

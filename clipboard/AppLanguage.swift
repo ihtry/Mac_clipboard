@@ -69,6 +69,10 @@ struct AppStrings {
     var languageSection: String { text("语言", "Language") }
     var appLanguage: String { text("应用语言", "App Language") }
     var languageHint: String { text("切换后立即应用到主要界面。", "Applies immediately to the main interface.") }
+    var updatesSection: String { text("更新", "Updates") }
+    var checkForUpdates: String { text("检查更新", "Check for Updates") }
+    var updatesEnabledHint: String { text("将通过 Sparkle 检查 GitHub Release 更新。", "Checks GitHub Release updates through Sparkle.") }
+    var updatesDisabledHint: String { text("自动更新尚未配置公钥和更新源。生成 Sparkle 密钥后在构建设置中填入。", "Automatic updates need a Sparkle public key and feed URL. Generate a Sparkle key and fill them in build settings.") }
     var interactionSection: String { text("交互", "Interaction") }
     var pauseClipboardMonitoring: String { text("暂停监听剪切板", "Pause Clipboard Monitoring") }
     var pausedHint: String { text("暂停期间复制的新内容不会被记录。", "New copies are not recorded while monitoring is paused.") }
